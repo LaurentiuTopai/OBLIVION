@@ -1,0 +1,3 @@
+pahole -C dentry /sys/kernel/btf/vmlinux
+pahole -C inode  /sys/kernel/btf/vmlinux
+pahole -C qstr   /sys/kernel/btf/vmlinux

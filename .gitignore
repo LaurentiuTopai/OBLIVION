@@ -1,0 +1,5 @@
+GO/internal/loader/*_bpfel.go
+GO/internal/loader/*_bpfel.o
+GO/internal/loader/*_bpfeb.go
+GO/internal/loader/*_bpfeb.o
+BPF/vmlinux.h

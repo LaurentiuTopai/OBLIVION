@@ -1,0 +1,58 @@
+sudo bpftool prog show                 # programe încărcate
+sudo bpftool link show                 # atașări (hook-uri LSM active)
+sudo bpftool map show                  # map-uri
+sudo cat /sys/kernel/tracing/trace_pipe  # output de la bpf_printk
+
+
+
+sudo bpftool prog loadall /tmp/oblivion.o /sys/fs/bpf/oblivion 2>&1 | grep -E "libbpf: prog|not allowed|invalid|Error"
+sudo rm -rf /sys/fs/bpf/oblivion
+
+
+
+docs.ebpf.io: probabil cea mai utilă pagină pentru tine. Are câte o pagină per tip de program (inclusiv LSM), per helper și per map type.
+man 2 bpf, man 7 bpf-helpers, man bpftool, man bpftool-prog, bpftool-map, bpftool-btf, bpftool-link: le ai local, după ce ai instalat bpftool.
+
+
+Kernel docs BPF: https://docs.kernel.org/bpf/
+
+
+Sursa kernelului, ca să vezi ce hook-uri sunt permise și cu ce helpere: kernel/bpf/bpf_lsm.c și security/bpf/hooks.c, navigabile pe https://elixir.bootlin.com/linux/latest/source.
+
+Go: https://ebpf-go.dev/ și https://pkg.go.dev/github.com/cilium/ebpf (pachetele link și ringbuf).
+Carte gratuită: Learning eBPF (Liz Rice, la Isovalent). Pentru partea de securitate: Security Observability with eBPF (Jed Salazar, Natalia Ivanko).
+
+Fedora Quick Docs, SELinux: https://docs.fedoraproject.org/en-US/quick-docs/selinux-getting-started/
+
+Kernel: https://docs.kernel.org/admin-guide/LSM/SELinux.html
+Unelte de folosit: sestatus, ausearch -m avc, semanage, man selinux.
+
+Restul LSM-urilor din lista ta (lockdown, landlock, ima, evm, ipe)
+
+Index: https://docs.kernel.org/admin-guide/LSM/index.html
+Landlock: https://docs.kernel.org/userspace-api/landlock.html
+Lockdown: man kernel_lockdown
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cd ~/Faculta/OBLIVION/BPF
+clang -target bpf -O2 -g -D__TARGET_ARCH_x86 -Wno-missing-declarations -I. -c oblivion.bpf.c -o /tmp/oblivion.o && \
+sudo bpftool prog loadall /tmp/oblivion.o /sys/fs/bpf/oblivion 2>&1 | tail -5
+sudo ls /sys/fs/bpf/oblivion | wc -l
+sudo rm -rf /sys/fs/bpf/oblivion
