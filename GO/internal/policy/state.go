@@ -1,10 +1,14 @@
 package policy
 
 import (
-	"time"
+	"fmt"
 	"strings"
+	"time"
+
 	"oblivion/internal/events"
 )
+
+var riskyPrefixes = []string{"/tmp/", "/dev/shm/", "/var/tmp/"}
 
 type ProcKey struct {
 	Tgid      uint32
@@ -12,13 +16,12 @@ type ProcKey struct {
 }
 
 type Proc struct {
-	Key      ProcKey
-	Ppid     uint32
-	Comm     string
-	ExePath  string
-	FromTmp  bool
+	Key     ProcKey
+	Ppid    uint32
+	Comm    string
+	ExePath string
+	FromTmp bool
 
-	//ransomeware si score pentru rules compuse
 	Alerted    bool
 	Score      int
 	Reasons    []string
@@ -35,7 +38,11 @@ type Proc struct {
 	ExtFlagged    bool
 	Dirs          map[string]struct{}
 	DirFlagged    bool
+
+	HasNetConn bool
+	LastDst    string
 }
+
 func (p *Proc) ResetScore(now time.Time) {
 	p.ScoreStart = now
 	p.Score = 0
@@ -78,4 +85,20 @@ func (s *State) Update(ev *events.Event) {
 			}
 		}
 	}
+	if ev.Type == events.EvSocketConnect && ev.DstIP != nil && !ev.DstIP.IsLoopback() {
+		p.HasNetConn = true
+		p.LastDst = fmt.Sprintf("%s:%d", ev.DstIP.String(), ev.DstPort)
+	}
+}
+
+func (s *State) FindParent(ppid uint32) *Proc {
+	var latest *Proc
+	for _, p := range s.Procs {
+		if p.Key.Tgid == ppid {
+			if latest == nil || p.Key.StartTime > latest.Key.StartTime {
+				latest = p
+			}
+		}
+	}
+	return latest
 }

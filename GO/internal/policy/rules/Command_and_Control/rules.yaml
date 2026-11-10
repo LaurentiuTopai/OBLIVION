@@ -1,0 +1,32 @@
+- id: "c2-shell-direct-socket"
+  name: "Shell binary opened outbound connection (Reverse Shell)"
+  mitre: "T1059.004"
+  severity: 5
+  events: ["socket_connect"]
+  comms: ["sh", "bash", "dash", "zsh", "ash", "ksh", "fish", "rbash"]
+  external_ip: true
+
+- id: "c2-netconn-exec-shell"
+  name: "Process with active outbound connection executed a shell"
+  mitre: "T1059.004"
+  severity: 5
+  events: ["exec"]
+  comms: ["sh", "bash", "dash", "zsh", "ash", "ksh", "fish", "rbash"]
+  has_net_conn: true
+
+- id: "c2-parent-server-spawn-shell"
+  name: "Web/DB server process spawned a shell or recon tool"
+  mitre: "T1505.003"
+  severity: 5
+  events: ["exec"]
+  parent_comms: ["nginx", "apache2", "httpd", "php-fpm", "php", "java", "node", "python3", "python", "ruby", "uwsgi", "gunicorn", "tomcat", "postgres", "mysqld", "redis-server"]
+  comms: ["sh", "bash", "dash", "zsh", "ash", "nc", "ncat", "netcat", "socat", "curl", "wget", "whoami", "id", "uname", "cat", "python", "python3", "perl", "ruby"]
+
+- id: "c2-shell-to-external-low-port"
+  name: "Shell binary connected to external privileged port"
+  mitre: "T1071.001"
+  severity: 4
+  events: ["socket_connect"]
+  comms: ["sh", "bash", "dash", "zsh", "ash", "ksh"]
+  dst_ports: [21, 22, 23, 25, 53, 80, 110, 143, 443, 465, 587, 993, 995]
+  external_ip: true

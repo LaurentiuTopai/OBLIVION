@@ -1,0 +1,8 @@
+# Disable entire rule categories by listing their directory names here.
+# The directory name must match exactly the folder under rules/.
+# Example:
+#   disabled_categories:
+#     - ContainerEscape_KernelSurface
+#     - Impact_wares
+
+disabled_categories: []

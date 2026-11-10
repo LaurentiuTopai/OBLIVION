@@ -1,0 +1,31 @@
+- id: "privesc-suid-bit-set"
+  name: "SUID or SGID bit set on file by non-package-manager process"
+  mitre: "T1548.001"
+  severity: 5
+  events: ["path_chmod", "inode_setattr"]
+  mode_mask: 2048
+  not_comms: ["dpkg", "apt", "rpm", "yum", "dnf", "pacman", "chmod", "install"]
+
+- id: "privesc-root-euid-transition"
+  name: "Non-root process gained EUID 0 via unlisted binary"
+  mitre: "T1068"
+  severity: 5
+  events: ["task_fix_setuid", "bprm_committed_creds"]
+  euid_transition_to_root: true
+  not_comms: ["sudo", "su", "pkexec", "sshd", "login", "passwd", "gpasswd", "chsh", "newgrp", "systemd", "polkit"]
+
+- id: "privesc-unprivileged-userns"
+  name: "Non-root process created a user namespace (kernel exploit primitive)"
+  mitre: "T1611"
+  severity: 4
+  events: ["userns_create"]
+  require_non_root_uid: true
+  not_comms: ["bwrap", "chrome", "chromium", "firefox", "flatpak", "podman", "newuidmap"]
+
+- id: "privesc-cap-sys-admin-acquired"
+  name: "Non-root process acquired CAP_SYS_ADMIN capability"
+  mitre: "T1548"
+  severity: 5
+  events: ["capset"]
+  cap_mask: 2097152
+  require_non_root_uid: true

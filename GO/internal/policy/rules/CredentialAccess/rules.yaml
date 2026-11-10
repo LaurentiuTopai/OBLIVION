@@ -1,0 +1,39 @@
+- id: "cred-shadow-file-access"
+  name: "Unauthorized process opened /etc/shadow (credential dumping)"
+  mitre: "T1003.008"
+  severity: 4
+  events: ["file_open"]
+  path_exact: ["/etc/shadow"]
+  not_comms: ["sshd", "login", "su", "sudo", "passwd", "unix_chkpwd", "gdm-session-wor", "systemd", "useradd", "usermod", "chpasswd", "newusers"]
+
+- id: "cred-pam-tampering"
+  name: "Unauthorized write to PAM authentication module or config"
+  mitre: "T1556.003"
+  severity: 5
+  events: ["inode_create", "inode_rename", "file_truncate"]
+  path_prefixes: ["/etc/pam.d/", "/lib/security/", "/lib64/security/"]
+  not_comms: ["dpkg", "apt", "rpm", "yum", "dnf", "pacman"]
+
+- id: "cred-ssh-private-key-read"
+  name: "Unexpected process reading SSH private key file"
+  mitre: "T1552.004"
+  severity: 4
+  events: ["file_open"]
+  path_suffixes: ["/id_rsa", "/id_ed25519", "/id_ecdsa", "/id_dsa", "/.ssh/identity"]
+  not_comms: ["ssh", "sshd", "ssh-agent", "git", "rsync", "sftp"]
+
+- id: "cred-aws-credentials-access"
+  name: "Unexpected process accessed AWS credentials file"
+  mitre: "T1552.001"
+  severity: 4
+  events: ["file_open"]
+  path_suffixes: ["/.aws/credentials", "/.aws/config"]
+  not_comms: ["aws", "python3", "python", "node", "terraform", "packer", "vault"]
+
+- id: "cred-docker-config-access"
+  name: "Unexpected process read Docker registry credentials"
+  mitre: "T1552.001"
+  severity: 3
+  events: ["file_open"]
+  path_suffixes: ["/.docker/config.json"]
+  not_comms: ["docker", "dockerd", "containerd", "podman", "buildah", "crane"]

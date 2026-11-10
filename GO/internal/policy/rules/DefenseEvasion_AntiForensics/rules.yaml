@@ -1,0 +1,23 @@
+- id: "defense-ld-preload-write"
+  name: "Write or creation of /etc/ld.so.preload (userland rootkit)"
+  mitre: "T1574.006"
+  severity: 5
+  events: ["inode_create", "inode_rename", "file_truncate"]
+  path_exact: ["/etc/ld.so.preload"]
+  not_comms: ["dpkg", "apt", "rpm", "yum", "dnf", "pacman", "ldconfig"]
+
+- id: "defense-ld-preload-open"
+  name: "Unauthorized process opened /etc/ld.so.preload"
+  mitre: "T1574.006"
+  severity: 4
+  events: ["file_open"]
+  path_exact: ["/etc/ld.so.preload"]
+  not_comms: ["ldconfig", "dpkg", "apt", "rpm"]
+
+- id: "defense-tmp-exec-rename-to-sys"
+  name: "Binary renamed from temporary directory into system path"
+  mitre: "T1036.005"
+  severity: 4
+  events: ["inode_rename"]
+  path_prefixes: ["/tmp/", "/dev/shm/", "/var/tmp/"]
+  path_suffixes: []

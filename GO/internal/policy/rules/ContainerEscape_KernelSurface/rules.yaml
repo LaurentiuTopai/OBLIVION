@@ -1,0 +1,32 @@
+- id: "container-docker-sock-access"
+  name: "Unauthorized access to container runtime socket"
+  mitre: "T1611"
+  severity: 5
+  events: ["file_open", "socket_connect"]
+  path_exact: ["/var/run/docker.sock", "/run/docker.sock", "/run/containerd/containerd.sock", "/run/crio/crio.sock", "/var/run/crio/crio.sock"]
+  not_comms: ["docker", "dockerd", "containerd", "kubelet", "crio", "podman", "nerdctl", "crictl"]
+
+- id: "container-docker-api-tcp"
+  name: "Connection to unauthenticated Docker TCP API"
+  mitre: "T1611"
+  severity: 5
+  events: ["socket_connect"]
+  dst_ports: [2375, 2376, 2377]
+  not_comms: ["docker", "dockerd", "kubectl", "helm", "terraform"]
+
+- id: "container-proc-kernel-write"
+  name: "Unauthorized write to sensitive kernel parameter via /proc/sys/kernel"
+  mitre: "T1543"
+  severity: 4
+  events: ["file_open", "inode_create"]
+  path_prefixes: ["/proc/sys/kernel/", "/proc/sysrq-trigger"]
+  not_comms: ["sysctl", "systemd", "init", "kernel-tune"]
+
+- id: "container-cgroup-release-agent"
+  name: "Write to cgroup release_agent (classic container escape)"
+  mitre: "T1611"
+  severity: 5
+  events: ["file_open", "inode_create"]
+  path_contains: ["release_agent"]
+  path_prefixes: ["/sys/fs/cgroup/", "/cgroup/"]
+  not_comms: ["systemd", "cgroupfs-mount", "containerd", "dockerd"]

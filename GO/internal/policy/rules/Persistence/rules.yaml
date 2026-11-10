@@ -1,0 +1,48 @@
+- id: "persist-cron-job-creation"
+  name: "New file created in cron directory by non-package-manager"
+  mitre: "T1053.003"
+  severity: 4
+  events: ["inode_create", "inode_rename"]
+  path_prefixes: ["/etc/cron.d/", "/etc/cron.daily/", "/etc/cron.hourly/", "/etc/cron.weekly/", "/etc/cron.monthly/", "/var/spool/cron/", "/var/spool/cron/crontabs/"]
+  not_comms: ["dpkg", "apt", "rpm", "yum", "dnf", "pacman", "crontab"]
+
+- id: "persist-systemd-unit-drop"
+  name: "New systemd unit file created outside package manager"
+  mitre: "T1053.006"
+  severity: 4
+  events: ["inode_create", "inode_rename"]
+  path_prefixes: ["/etc/systemd/system/", "/lib/systemd/system/", "/usr/lib/systemd/system/", "/run/systemd/system/"]
+  path_suffixes: [".service", ".timer", ".socket", ".path"]
+  not_comms: ["dpkg", "apt", "rpm", "yum", "dnf", "pacman", "systemctl"]
+
+- id: "persist-ssh-authorized-key"
+  name: "Write to SSH authorized_keys (backdoor public key)"
+  mitre: "T1098.004"
+  severity: 5
+  events: ["inode_create", "inode_rename"]
+  path_contains: ["/.ssh/authorized_keys"]
+  not_comms: ["sshd", "ssh-copy-id"]
+
+- id: "persist-pam-config-write"
+  name: "Unauthorized write to PAM authentication configuration"
+  mitre: "T1556.003"
+  severity: 5
+  events: ["inode_create", "inode_rename", "file_truncate"]
+  path_prefixes: ["/etc/pam.d/", "/lib/security/", "/lib64/security/"]
+  not_comms: ["dpkg", "apt", "rpm", "yum", "dnf", "pacman"]
+
+- id: "persist-initd-script-drop"
+  name: "New init script created in /etc/init.d or rc.local"
+  mitre: "T1037.004"
+  severity: 4
+  events: ["inode_create", "inode_rename"]
+  path_prefixes: ["/etc/init.d/", "/etc/rc"]
+  not_comms: ["dpkg", "apt", "rpm", "yum", "dnf", "pacman", "update-rc.d"]
+
+- id: "persist-etc-crontab-write"
+  name: "Direct write to /etc/crontab"
+  mitre: "T1053.003"
+  severity: 4
+  events: ["inode_create", "file_truncate"]
+  path_exact: ["/etc/crontab"]
+  not_comms: ["dpkg", "apt", "rpm", "cron"]

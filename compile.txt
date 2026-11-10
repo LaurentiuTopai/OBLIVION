@@ -35,9 +35,12 @@ Lockdown: man kernel_lockdown
 
 
 
+pentru oblivion:
+sudo go run ./cmd/...
 
 
-
+pentru UI:
+WEBKIT_DISABLE_DMABUF_RENDERER=1 wails dev -tags webkit2_41
 
 
 

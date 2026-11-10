@@ -1,0 +1,31 @@
+- id: "webshell-server-spawn-shell"
+  name: "Web/application server spawned an interactive shell"
+  mitre: "T1505.003"
+  severity: 5
+  events: ["exec"]
+  parent_comms: ["nginx", "apache2", "httpd", "lighttpd", "php-fpm", "php", "java", "node", "python3", "python", "ruby", "uwsgi", "gunicorn", "tomcat", "jetty", "wildfly"]
+  comms: ["sh", "bash", "dash", "zsh", "ash", "ksh", "fish", "rbash", "csh", "tcsh"]
+
+- id: "webshell-server-spawn-recon"
+  name: "Web/application server spawned a system reconnaissance tool"
+  mitre: "T1190"
+  severity: 4
+  events: ["exec"]
+  parent_comms: ["nginx", "apache2", "httpd", "lighttpd", "php-fpm", "php", "java", "node", "python3", "python", "ruby", "uwsgi", "gunicorn"]
+  comms: ["whoami", "id", "uname", "hostname", "ifconfig", "ip", "ps", "netstat", "ss", "cat", "head", "find", "ls"]
+
+- id: "webshell-server-spawn-downloader"
+  name: "Web/application server spawned a file download utility"
+  mitre: "T1105"
+  severity: 5
+  events: ["exec"]
+  parent_comms: ["nginx", "apache2", "httpd", "php-fpm", "php", "java", "node", "python3", "python", "ruby", "uwsgi", "gunicorn"]
+  comms: ["curl", "wget", "fetch", "lwp-download", "axel", "aria2c"]
+
+- id: "webshell-server-spawn-netcat"
+  name: "Web/application server spawned a network relay or tunnel tool"
+  mitre: "T1059"
+  severity: 5
+  events: ["exec"]
+  parent_comms: ["nginx", "apache2", "httpd", "php-fpm", "php", "java", "node", "python3", "python", "ruby", "uwsgi", "gunicorn"]
+  comms: ["nc", "ncat", "netcat", "socat", "nmap", "masscan", "chisel", "frpc", "ligolo"]

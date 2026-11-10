@@ -1,0 +1,28 @@
+- id: "exec-from-tmp"
+  name: "Binary executed from world-writable temporary directory"
+  mitre: "T1059"
+  severity: 3
+  events: ["exec"]
+  path_prefixes: ["/tmp/", "/var/tmp/"]
+
+- id: "exec-fileless-memfd"
+  name: "Fileless execution via memfd or proc fd (never touches disk)"
+  mitre: "T1620"
+  severity: 5
+  events: ["exec"]
+  path_prefixes: ["/memfd:", "/proc/self/fd/", "/dev/fd/"]
+
+- id: "exec-from-dev-shm"
+  name: "Binary executed directly from shared memory mount"
+  mitre: "T1059"
+  severity: 4
+  events: ["exec"]
+  path_prefixes: ["/dev/shm/", "/run/shm/"]
+
+- id: "exec-interpreter-script-from-tmp"
+  name: "Script interpreter invoked with script residing in /tmp"
+  mitre: "T1059"
+  severity: 4
+  events: ["exec"]
+  comms: ["python", "python3", "perl", "ruby", "bash", "sh", "node", "php"]
+  from_tmp: true

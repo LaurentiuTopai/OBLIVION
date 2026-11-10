@@ -2,11 +2,12 @@ package policy
 
 import (
 	"fmt"
-	"oblivion/internal/alert"
-	"oblivion/internal/events"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"oblivion/internal/alert"
+	"oblivion/internal/events"
 )
 
 type Ransomware struct {
@@ -19,6 +20,7 @@ type Ransomware struct {
 	ScoreWindow     time.Duration
 	AlertScore      int
 }
+
 var noteKeywords = []string{"readme", "decrypt", "recover", "restore", "how_to", "ransom"}
 
 func slide(times []time.Time, now time.Time, window time.Duration) []time.Time {
@@ -30,24 +32,8 @@ func slide(times []time.Time, now time.Time, window time.Duration) []time.Time {
 	return times[i:]
 }
 
-func (Ransomware) ID() string { return "ransomeware-suspected" }
+func (Ransomware) ID() string { return "ransomware-suspected" }
 
-/*
-	func returnAlert(){
-		return &alert.Alert{
-			Rule:	"RansomeWare",
-			Severity:	5,
-			Mitre: "",
-			Tgid: ev.Tgid,
-			Ppid:	ev.Ppid,
-			Comm:	ev.Comm,
-			Exe:	ev.Path,
-			Detail:	fmt.Printf("Ransomeware detectat")
-
-			Time:	time.Now(),
-		}
-	}
-*/
 func (r Ransomware) Match(ev *events.Event, st *State) *alert.Alert {
 	p := st.Procs[ProcKey{ev.Tgid, ev.StartTime}]
 	if p == nil || p.Alerted {
@@ -64,7 +50,7 @@ func (r Ransomware) Match(ev *events.Event, st *State) *alert.Alert {
 		if len(p.RenameTimes) >= r.RenameThreshold && !p.RenameFlagged {
 			p.RenameFlagged = true
 			p.Score += 2
-			p.Reasons = append(p.Reasons, "rename in masa")
+			p.Reasons = append(p.Reasons, "bulk rename")
 		}
 		ext := filepath.Ext(ev.Path2)
 		if ext != "" && ext != filepath.Ext(ev.Path) {
@@ -72,7 +58,7 @@ func (r Ransomware) Match(ev *events.Event, st *State) *alert.Alert {
 			if p.NewExts[ext] >= r.ExtThreshold && !p.ExtFlagged {
 				p.ExtFlagged = true
 				p.Score += 3
-				p.Reasons = append(p.Reasons, "extensie noua repetata: "+ext)
+				p.Reasons = append(p.Reasons, "repeated new extension: "+ext)
 			}
 		}
 	case events.EvInodeUnlink:
@@ -80,21 +66,21 @@ func (r Ransomware) Match(ev *events.Event, st *State) *alert.Alert {
 		if len(p.UnlinkTimes) >= r.UnlinkThreshold && !p.UnlinkFlagged {
 			p.UnlinkFlagged = true
 			p.Score += 2
-			p.Reasons = append(p.Reasons, "unlink in masa")
+			p.Reasons = append(p.Reasons, "bulk unlink")
 		}
 	case events.EvInodeCreate:
 		p.CreateTimes = slide(append(p.CreateTimes, now), now, r.Window)
 		if len(p.CreateTimes) >= r.CreateThreshold && !p.CreateFlagged {
 			p.CreateFlagged = true
 			p.Score += 1
-			p.Reasons = append(p.Reasons, "create in masa")
+			p.Reasons = append(p.Reasons, "bulk create")
 		}
 		name := strings.ToLower(ev.Path)
 		for _, k := range noteKeywords {
 			if strings.Contains(name, k) && !p.NoteFlagged {
 				p.NoteFlagged = true
 				p.Score += 2
-				p.Reasons = append(p.Reasons, "posibila nota de rascumparare: "+ev.Path)
+				p.Reasons = append(p.Reasons, "possible ransom note: "+ev.Path)
 				break
 			}
 		}
@@ -103,13 +89,13 @@ func (r Ransomware) Match(ev *events.Event, st *State) *alert.Alert {
 		if len(p.Dirs) >= r.DirThreshold && !p.DirFlagged {
 			p.DirFlagged = true
 			p.Score += 1
-			p.Reasons = append(p.Reasons, "scrieri in multe directoare")
+			p.Reasons = append(p.Reasons, "writes across many directories")
 		}
 	}
 
-	if p.FromTmp && p.Score > 0 && !contains(p.Reasons, "proces din /tmp") {
+	if p.FromTmp && p.Score > 0 && !sliceContains(p.Reasons, "process from /tmp") {
 		p.Score += 1
-		p.Reasons = append(p.Reasons, "proces din /tmp")
+		p.Reasons = append(p.Reasons, "process from /tmp")
 	}
 
 	if p.Score >= r.AlertScore {
@@ -122,14 +108,14 @@ func (r Ransomware) Match(ev *events.Event, st *State) *alert.Alert {
 			Ppid:     ev.Ppid,
 			Comm:     ev.Comm,
 			Exe:      p.ExePath,
-			Detail:   fmt.Sprintf("scor %d: %s", p.Score, strings.Join(p.Reasons, "; ")),
+			Detail:   fmt.Sprintf("score %d: %s", p.Score, strings.Join(p.Reasons, "; ")),
 			Time:     now,
 		}
 	}
 	return nil
 }
 
-func contains(l []string, s string) bool {
+func sliceContains(l []string, s string) bool {
 	for _, x := range l {
 		if x == s {
 			return true
